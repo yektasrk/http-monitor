@@ -2,7 +2,11 @@ module github.com/yektasrk/http-monitor
 
 go 1.17
 
-require github.com/labstack/echo/v4 v4.10.0
+require (
+	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
+	github.com/golang-jwt/jwt/v4 v4.4.3
+	github.com/labstack/echo/v4 v4.10.0
+)
 
 require (
 	github.com/labstack/gommon v0.4.0 // indirect
