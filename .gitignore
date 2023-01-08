@@ -1,0 +1,10 @@
+/vendor
+/.bin
+.vscode/
+.coverage
+*.cover
+/coverage.html
+.idea
+.DS_Store
+
+/monitord
