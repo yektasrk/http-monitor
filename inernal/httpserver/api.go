@@ -60,16 +60,16 @@ func (httpMonitor httpMonitorHandler) loginUser(c echo.Context) error {
 	userRequest := UserRequest{}
 	err := utils.ParsRequest(c, &userRequest)
 	if err != nil {
-		echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	token, err := httpMonitor.userHandler.AuthUser(userRequest.Username, userRequest.Password)
 	if errors.Is(err, handler.UserNotFoundError) {
-		echo.NewHTTPError(http.StatusNotFound, err.Error())
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	} else if errors.Is(err, handler.PasswordNotCorrect) {
-		echo.NewHTTPError(http.StatusOK, err.Error())
+		return echo.NewHTTPError(http.StatusOK, err.Error())
 	} else if err != nil {
-		echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	data := struct {

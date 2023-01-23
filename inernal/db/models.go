@@ -16,4 +16,3 @@ func (Client Client) GetUser(username string) (User, error) {
 	result := Client.db.Where("username = ?", username).First(&user)
 	return user, result.Error
 }
-

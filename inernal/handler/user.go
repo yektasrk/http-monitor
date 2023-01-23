@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/jinzhu/gorm"
 	"github.com/yektasrk/http-monitor/configs"
 	"github.com/yektasrk/http-monitor/inernal/db"
 	"github.com/yektasrk/http-monitor/pkg/auth"
@@ -38,17 +39,21 @@ func (userHandler UserHandler) CreateUser(username, password string) error {
 		Password: protectedPassword,
 	}
 	err := userHandler.dbClient.SaveUser(user)
-	if strings.Contains(err.Error(), "duplicate key") {
+	if err != nil && strings.Contains(err.Error(), "duplicate key") {
 		return UserAlreadyExists
 	}
 	return err
 }
 
-func (userHandler UserHandler) AuthUser(username, protectedPassword string) (string, error) {
+func (userHandler UserHandler) AuthUser(username, password string) (string, error) {
 	user, err := userHandler.dbClient.GetUser(username)
-	if err != nil {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return "", UserNotFoundError
+	} else if err != nil {
+		return "", err
 	}
+
+	protectedPassword := utils.Hash(password)
 	if user.Password != protectedPassword {
 		return "", PasswordNotCorrect
 	}
