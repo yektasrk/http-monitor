@@ -8,11 +8,20 @@ import (
 
 type Configuration struct {
 	HttpServer HttpServerConfiguration
+	Postgres   PostgresConfiguration
 }
 
 type HttpServerConfiguration struct {
 	Host string
 	Port int
+}
+
+type PostgresConfiguration struct {
+	Host     string
+	Port     int
+	Username string
+	Password string
+	Database string
 }
 
 func Load(filename string) (*Configuration, error) {
