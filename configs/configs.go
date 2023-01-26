@@ -9,6 +9,7 @@ import (
 type Configuration struct {
 	HttpServer HttpServerConfiguration
 	Postgres   PostgresConfiguration
+	Logger     LoggerConfiguration
 	JwtAuth    JwtAuth
 }
 
@@ -28,6 +29,10 @@ type PostgresConfiguration struct {
 type JwtAuth struct {
 	SecretKey  string
 	ExpireTime string
+}
+
+type LoggerConfiguration struct {
+	Level string
 }
 
 func Load(filename string) (*Configuration, error) {

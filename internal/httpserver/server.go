@@ -1,7 +1,6 @@
 package httpserver
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/yektasrk/http-monitor/configs"
@@ -34,16 +33,15 @@ func (httpMonitor httpMonitor) Serve(config configs.HttpServerConfiguration) err
 	e.POST(apiPrefix+"users/", httpMonitor.httpMonitorHandler.createUser)
 	e.POST(apiPrefix+"users/login/", httpMonitor.httpMonitorHandler.loginUser)
 
-	endPointgroup := e.Group(apiPrefix + "endpoints")
-	endPointgroup.Use(middleware.LoginRequired)
-	endPointgroup.GET("/", httpMonitor.httpMonitorHandler.ListEndpoints)
-	endPointgroup.GET("/:id", httpMonitor.httpMonitorHandler.ListEndpoints)
-	endPointgroup.POST("/", httpMonitor.httpMonitorHandler.ListEndpoints)
+	urlgroup := e.Group(apiPrefix + "urls")
+	urlgroup.Use(middleware.LoginRequired)
+	urlgroup.GET("/", httpMonitor.httpMonitorHandler.ListUrls)
+	urlgroup.GET("/:id", httpMonitor.httpMonitorHandler.ListUrls)
+	urlgroup.POST("/", httpMonitor.httpMonitorHandler.ListUrls)
 
 	address := config.Host + ":" + strconv.Itoa(config.Port)
 	err := e.Start(address)
 	if err != nil {
-		fmt.Errorf("failed to start http listener: ", err)
 		return err
 	}
 	return nil

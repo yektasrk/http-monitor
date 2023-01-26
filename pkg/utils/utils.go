@@ -6,6 +6,7 @@ import (
 
 	"github.com/asaskevich/govalidator"
 	"github.com/labstack/echo/v4"
+	log "github.com/sirupsen/logrus"
 )
 
 func Hash(text string) string {
@@ -21,6 +22,7 @@ func ParsRequest(c echo.Context, i interface{}) error {
 		return err
 	}
 	if _, err := govalidator.ValidateStruct(i); err != nil {
+		log.Error("Error in validating struct", err)
 		return err
 	}
 	return nil

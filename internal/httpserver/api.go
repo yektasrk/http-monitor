@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/yektasrk/http-monitor/configs"
 	"github.com/yektasrk/http-monitor/internal/handler"
 
@@ -44,7 +45,7 @@ func (httpMonitor httpMonitorHandler) createUser(c echo.Context) error {
 	if errors.Is(err, handler.UserAlreadyExists) {
 		return echo.NewHTTPError(http.StatusConflict, err.Error())
 	} else if err != nil {
-		fmt.Println(err)
+		log.Error("Error in creating user", err)
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
@@ -69,6 +70,7 @@ func (httpMonitor httpMonitorHandler) loginUser(c echo.Context) error {
 	} else if errors.Is(err, handler.PasswordNotCorrect) {
 		return echo.NewHTTPError(http.StatusOK, err.Error())
 	} else if err != nil {
+		log.Error("Error in authenticating user", err)
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
@@ -80,15 +82,15 @@ func (httpMonitor httpMonitorHandler) loginUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, data)
 }
 
-func (httpMonitor httpMonitorHandler) ListEndpoints(c echo.Context) error {
+func (httpMonitor httpMonitorHandler) ListUrls(c echo.Context) error {
 	userID := c.Get("userID")
 	fmt.Println(userID)
-	endpoints := []string{"1", "2"}
+	urls := []string{"1", "2"}
 
 	data := struct {
-		Endpoints []string `json:"endpoints"`
+		Urls []string `json:"urls"`
 	}{
-		Endpoints: endpoints,
+		Urls: urls,
 	}
 	return c.JSON(http.StatusOK, data)
 }

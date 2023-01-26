@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -20,6 +21,9 @@ func GenerateToken(secretKey []byte, expireTime time.Duration, ID uint) (string,
 	})
 
 	tokenString, err := token.SignedString(secretKey)
+	if err != nil {
+		log.Error("error in signing token", err)
+	}
 	return tokenString, err
 }
 
@@ -31,15 +35,18 @@ func ValidateToken(secretKey []byte, tokenString string) (int, error) {
 		return secretKey, nil
 	})
 	if err != nil {
+		log.Error("error in validating token", err)
 		return -1, err
 	}
 
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		if claims["iss"].(string) == iss || claims["exp"].(int64) <= time.Now().Unix() {
-			id := int(claims["id"].(float64))
-			return id, nil
-		}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
 		return -1, tokenNotValidErr
 	}
-	return -1, err
+	if claims["iss"].(string) != iss || int64(claims["exp"].(float64)) < time.Now().Unix() {
+		return -1, tokenNotValidErr
+	}
+
+	id := int(claims["id"].(float64))
+	return id, nil
 }

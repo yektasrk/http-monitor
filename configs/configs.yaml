@@ -7,6 +7,8 @@ postgres:
   username: "postgres"
   password: "password1234"
   database: "httpmonitor"
+logger:
+  level: "INFO"
 jwtauth:
   secretkey: "RgUkXp2s5v8y0BiE8GaKbPeShVmYq3t6w9z$C&F7JvMcQfTjWnZr4u7x4A9D6G2K"
   expiretime: "2h"

@@ -2,10 +2,12 @@ package main
 
 import (
 	"flag"
-	"fmt"
 
 	"github.com/yektasrk/http-monitor/configs"
 	"github.com/yektasrk/http-monitor/internal/httpserver"
+	"github.com/yektasrk/http-monitor/pkg/logger"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -19,13 +21,17 @@ func main() {
 		panic("failed to load configs")
 	}
 
+	err = logger.ConfigureLogger(config.Logger)
+	if err != nil {
+		panic("failed to configure logger")
+	}
+
 	httpMonitor, err := httpserver.New(config)
 	if err != nil {
-		fmt.Print(err)
-		panic("failed to initialize http monitor service")
+		log.Fatal("failed to initialize http monitor service", err)
 	}
 
 	if err := httpMonitor.Serve(config.HttpServer); err != nil {
-		panic("failed to start http server")
+		log.Fatal("failed to start http server", err)
 	}
 }
