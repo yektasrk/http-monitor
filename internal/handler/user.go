@@ -3,10 +3,11 @@ package handler
 import (
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	"github.com/yektasrk/http-monitor/configs"
-	"github.com/yektasrk/http-monitor/inernal/db"
+	"github.com/yektasrk/http-monitor/internal/db"
 	"github.com/yektasrk/http-monitor/pkg/auth"
 	"github.com/yektasrk/http-monitor/pkg/utils"
 )
@@ -18,17 +19,24 @@ var (
 )
 
 type UserHandler struct {
-	dbClient *db.Client
+	JwtTokenExpireTime time.Duration
+	JwtSecretKey       []byte
+	dbClient           *db.Client
 }
 
 func NewUserHandler(config *configs.Configuration) (*UserHandler, error) {
+	jwtTokenExpireTime, err := time.ParseDuration(config.JwtAuth.ExpireTime)
+	jwtKeybytes := []byte(config.JwtAuth.SecretKey)
+
 	dbClient, err := db.GetDatabase(config.Postgres)
 	if err != nil {
 		return nil, err
 	}
 
 	return &UserHandler{
-		dbClient: dbClient,
+		JwtTokenExpireTime: jwtTokenExpireTime,
+		JwtSecretKey:       jwtKeybytes,
+		dbClient:           dbClient,
 	}, nil
 }
 
@@ -57,5 +65,6 @@ func (userHandler UserHandler) AuthUser(username, password string) (string, erro
 	if user.Password != protectedPassword {
 		return "", PasswordNotCorrect
 	}
-	return auth.GenerateToken(username)
+
+	return auth.GenerateToken(userHandler.JwtSecretKey, userHandler.JwtTokenExpireTime, user.ID)
 }

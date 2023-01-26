@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/yektasrk/http-monitor/configs"
-	"github.com/yektasrk/http-monitor/inernal/handler"
+	"github.com/yektasrk/http-monitor/internal/handler"
 
 	"github.com/yektasrk/http-monitor/pkg/utils"
 
@@ -69,13 +69,26 @@ func (httpMonitor httpMonitorHandler) loginUser(c echo.Context) error {
 	} else if errors.Is(err, handler.PasswordNotCorrect) {
 		return echo.NewHTTPError(http.StatusOK, err.Error())
 	} else if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
 	data := struct {
 		Token string `json:"token"`
 	}{
 		Token: token,
+	}
+	return c.JSON(http.StatusOK, data)
+}
+
+func (httpMonitor httpMonitorHandler) ListEndpoints(c echo.Context) error {
+	userID := c.Get("userID")
+	fmt.Println(userID)
+	endpoints := []string{"1", "2"}
+
+	data := struct {
+		Endpoints []string `json:"endpoints"`
+	}{
+		Endpoints: endpoints,
 	}
 	return c.JSON(http.StatusOK, data)
 }

@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/yektasrk/http-monitor/configs"
+	"github.com/yektasrk/http-monitor/internal/middleware"
 
 	"github.com/labstack/echo/v4"
 )
@@ -21,6 +22,8 @@ func New(config *configs.Configuration) (*httpMonitor, error) {
 		return nil, err
 	}
 
+	middleware.InitAuth(*httpMonitorHandler.userHandler)
+
 	return &httpMonitor{
 		httpMonitorHandler: *httpMonitorHandler,
 	}, nil
@@ -30,6 +33,12 @@ func (httpMonitor httpMonitor) Serve(config configs.HttpServerConfiguration) err
 	e := echo.New()
 	e.POST(apiPrefix+"users/", httpMonitor.httpMonitorHandler.createUser)
 	e.POST(apiPrefix+"users/login/", httpMonitor.httpMonitorHandler.loginUser)
+
+	endPointgroup := e.Group(apiPrefix + "endpoints")
+	endPointgroup.Use(middleware.LoginRequired)
+	endPointgroup.GET("/", httpMonitor.httpMonitorHandler.ListEndpoints)
+	endPointgroup.GET("/:id", httpMonitor.httpMonitorHandler.ListEndpoints)
+	endPointgroup.POST("/", httpMonitor.httpMonitorHandler.ListEndpoints)
 
 	address := config.Host + ":" + strconv.Itoa(config.Port)
 	err := e.Start(address)

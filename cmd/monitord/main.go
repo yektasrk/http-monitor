@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/yektasrk/http-monitor/configs"
-	"github.com/yektasrk/http-monitor/inernal/httpserver"
+	"github.com/yektasrk/http-monitor/internal/httpserver"
 )
 
 func main() {
@@ -18,7 +18,7 @@ func main() {
 	if err != nil {
 		panic("failed to load configs")
 	}
-	
+
 	httpMonitor, err := httpserver.New(config)
 	if err != nil {
 		fmt.Print(err)
