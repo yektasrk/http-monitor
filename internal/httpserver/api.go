@@ -124,13 +124,23 @@ func (httpMonitor httpMonitorHandler) GetUrlStats(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid Path Parameter")
 	}
 
-	urlStat, err := httpMonitor.urlHandler.UrlStats(urlID)
-	if err != nil { //TODO
+	duration := c.QueryParam("duration")
+	successRequests, failedRequests, allRequests, err := httpMonitor.urlHandler.UrlStats(urlID, duration)
+	if err != nil {
 		log.Error("Error in getting url stats: ", err)
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
-	log.Println(urlStat)
-	return c.JSON(http.StatusOK, nil)
+
+	data := struct {
+		SuccessRequests int `json:"successRequests"`
+		FailedRequests  int `json:"failedRequests"`
+		AllRequests     int `json:"allRequests"`
+	}{
+		SuccessRequests: successRequests,
+		FailedRequests:  failedRequests,
+		AllRequests:     allRequests,
+	}
+	return c.JSON(http.StatusOK, data)
 }
 
 func (httpMonitor httpMonitorHandler) ListUrls(c echo.Context) error {

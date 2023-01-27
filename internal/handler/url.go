@@ -70,13 +70,28 @@ func (urlHandler UrlHandler) CreateUrl(owner int, address string, failureThresho
 	return err
 }
 
-func (urlHandler UrlHandler) UrlStats(urlID int) (map[string]interface{}, error) {
-	url, err := urlHandler.dbClient.GetRequestsForUrl(urlID)
+func (urlHandler UrlHandler) UrlStats(urlID int, durationStr string) (int, int, int, error) {
+	duration, err := time.ParseDuration(durationStr)
 	if err != nil {
-		return nil, err
+		duration = time.Duration(24 * time.Hour)
 	}
-	log.Println(url)
-	return url, err
+	from := time.Now().Add(-1 * duration)
+	to := time.Now()
+	requests, reqCount, err := urlHandler.dbClient.GetRequestsForUrl(urlID, from, to)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	successRequests := 0
+	failedRequests := 0
+	for _, request := range requests {
+		if request.StatusCode/100 == 2 {
+			successRequests += 1
+		} else {
+			failedRequests += 1
+		}
+	}
+	return successRequests, failedRequests, int(reqCount), err
 }
 
 func (urlHandler UrlHandler) ListUserUrls(ownerID int) ([]map[string]interface{}, int, error) {
