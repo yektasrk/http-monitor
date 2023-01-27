@@ -28,7 +28,7 @@ func GetDatabase(config configs.PostgresConfiguration) (*Client, error) {
 		return nil, err
 	}
 
-	db.AutoMigrate(&User{})
+	db.AutoMigrate(&User{}, &Url{}, &Request{})
 
 	return &Client{
 		db: db,

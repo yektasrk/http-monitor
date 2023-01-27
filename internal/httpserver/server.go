@@ -36,8 +36,8 @@ func (httpMonitor httpMonitor) Serve(config configs.HttpServerConfiguration) err
 	urlgroup := e.Group(apiPrefix + "urls")
 	urlgroup.Use(middleware.LoginRequired)
 	urlgroup.GET("/", httpMonitor.httpMonitorHandler.ListUrls)
-	urlgroup.GET("/:id", httpMonitor.httpMonitorHandler.ListUrls)
-	urlgroup.POST("/", httpMonitor.httpMonitorHandler.ListUrls)
+	urlgroup.GET("/:id", httpMonitor.httpMonitorHandler.GetUrlStats)
+	urlgroup.POST("/", httpMonitor.httpMonitorHandler.CreateUrl)
 
 	address := config.Host + ":" + strconv.Itoa(config.Port)
 	err := e.Start(address)

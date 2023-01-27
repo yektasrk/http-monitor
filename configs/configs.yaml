@@ -12,3 +12,9 @@ logger:
 jwtauth:
   secretkey: "RgUkXp2s5v8y0BiE8GaKbPeShVmYq3t6w9z$C&F7JvMcQfTjWnZr4u7x4A9D6G2K"
   expiretime: "2h"
+urlhandler:
+  maxurlperuser: 20
+  allowedintervals:
+    - "30s"
+    - "1m"
+    - "5m"

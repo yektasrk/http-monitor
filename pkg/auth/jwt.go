@@ -22,7 +22,7 @@ func GenerateToken(secretKey []byte, expireTime time.Duration, ID uint) (string,
 
 	tokenString, err := token.SignedString(secretKey)
 	if err != nil {
-		log.Error("error in signing token", err)
+		log.Error("error in signing token: ", err)
 	}
 	return tokenString, err
 }
@@ -35,7 +35,7 @@ func ValidateToken(secretKey []byte, tokenString string) (int, error) {
 		return secretKey, nil
 	})
 	if err != nil {
-		log.Error("error in validating token", err)
+		log.Error("error in validating token: ", err)
 		return -1, err
 	}
 

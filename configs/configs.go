@@ -11,6 +11,7 @@ type Configuration struct {
 	Postgres   PostgresConfiguration
 	Logger     LoggerConfiguration
 	JwtAuth    JwtAuth
+	UrlHandler UrlHandlerConfiguration
 }
 
 type HttpServerConfiguration struct {
@@ -33,6 +34,11 @@ type JwtAuth struct {
 
 type LoggerConfiguration struct {
 	Level string
+}
+
+type UrlHandlerConfiguration struct {
+	MaxUrlPerUser    int
+	AllowedIntervals []string
 }
 
 func Load(filename string) (*Configuration, error) {
