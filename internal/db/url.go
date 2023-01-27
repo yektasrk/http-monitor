@@ -1,6 +1,8 @@
 package db
 
-import "time"
+import (
+	"time"
+)
 
 type Url struct {
 	ID               uint
@@ -11,9 +13,9 @@ type Url struct {
 	Interval         time.Duration
 }
 
-func (client Client) SaveUrl(url Url) error {
+func (client Client) SaveUrl(url Url) (Url, error) {
 	result := client.db.Create(&url)
-	return result.Error
+	return url, result.Error
 }
 
 func (client Client) GetUrlsForOwner(ownerID int) ([]Url, int64, error) {

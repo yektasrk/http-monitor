@@ -19,3 +19,5 @@ urlhandler:
     - "30s"
     - "1m"
     - "5m"
+scheduler:
+  syncinterval: "5m"

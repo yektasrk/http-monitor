@@ -12,6 +12,7 @@ type Configuration struct {
 	Logger     LoggerConfiguration
 	JwtAuth    JwtAuth
 	UrlHandler UrlHandlerConfiguration
+	Scheduler   SchedulerConfiguration
 }
 
 type HttpServerConfiguration struct {
@@ -40,6 +41,10 @@ type UrlHandlerConfiguration struct {
 	MaxUrlPerUser      int
 	AlertsHistoryCount int
 	AllowedIntervals   []string
+}
+
+type SchedulerConfiguration struct {
+	SyncInterval string
 }
 
 func Load(filename string) (*Configuration, error) {

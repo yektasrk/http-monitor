@@ -7,6 +7,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/yektasrk/http-monitor/configs"
+	"github.com/yektasrk/http-monitor/internal/db"
 	"github.com/yektasrk/http-monitor/internal/handler"
 
 	"github.com/yektasrk/http-monitor/pkg/utils"
@@ -15,8 +16,9 @@ import (
 )
 
 type httpMonitorHandler struct {
-	userHandler *handler.UserHandler
-	urlHandler  *handler.UrlHandler
+	urlsToSchedule chan db.Url
+	userHandler    *handler.UserHandler
+	urlHandler     *handler.UrlHandler
 }
 
 type UserRequest struct {
@@ -30,7 +32,7 @@ type UrlRequest struct {
 	Interval         string `json:"interval" valid:"required"`
 }
 
-func NewHttpMonitorHandler(config *configs.Configuration) (*httpMonitorHandler, error) {
+func NewHttpMonitorHandler(config *configs.Configuration, urlsToSchedule chan db.Url) (*httpMonitorHandler, error) {
 	userHandler, err := handler.NewUserHandler(config)
 	if err != nil {
 		return nil, err
@@ -42,8 +44,9 @@ func NewHttpMonitorHandler(config *configs.Configuration) (*httpMonitorHandler, 
 	}
 
 	return &httpMonitorHandler{
-		userHandler: userHandler,
-		urlHandler:  urlHandler,
+		urlsToSchedule: urlsToSchedule,
+		userHandler:    userHandler,
+		urlHandler:     urlHandler,
 	}, nil
 }
 
@@ -104,16 +107,19 @@ func (httpMonitor httpMonitorHandler) CreateUrl(c echo.Context) error {
 	}
 
 	failureThresholdInt, _ := strconv.Atoi(urlRequest.FailureThreshold)
-	err = httpMonitor.urlHandler.CreateUrl(userID, urlRequest.Address, failureThresholdInt, urlRequest.Interval)
+	url, err := httpMonitor.urlHandler.CreateUrl(userID, urlRequest.Address, failureThresholdInt, urlRequest.Interval)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		//TODO
 	}
+	httpMonitor.urlsToSchedule <- *url
 
 	data := struct {
+		ID  uint   `json:"id"`
 		Url string `json:"url"` //TODO
 	}{
-		Url: urlRequest.Address,
+		ID:  url.ID,
+		Url: url.Address,
 	}
 	return c.JSON(http.StatusOK, data)
 }

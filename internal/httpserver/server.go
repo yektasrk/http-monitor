@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/yektasrk/http-monitor/configs"
+	"github.com/yektasrk/http-monitor/internal/db"
 	"github.com/yektasrk/http-monitor/internal/middleware"
 
 	"github.com/labstack/echo/v4"
@@ -15,8 +16,8 @@ type httpMonitor struct {
 	httpMonitorHandler httpMonitorHandler
 }
 
-func New(config *configs.Configuration) (*httpMonitor, error) {
-	httpMonitorHandler, err := NewHttpMonitorHandler(config)
+func New(config *configs.Configuration, urlsToSchedule chan db.Url) (*httpMonitor, error) {
+	httpMonitorHandler, err := NewHttpMonitorHandler(config, urlsToSchedule)
 	if err != nil {
 		return nil, err
 	}

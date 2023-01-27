@@ -40,22 +40,22 @@ func NewUrlHandler(config *configs.Configuration) (*UrlHandler, error) {
 	}, nil
 }
 
-func (urlHandler UrlHandler) CreateUrl(owner int, address string, failureThreshold int, intervalStr string) error {
+func (urlHandler UrlHandler) CreateUrl(owner int, address string, failureThreshold int, intervalStr string) (*db.Url, error) {
 	if failureThreshold < 1 {
 		log.Error(failureThreshold)
-		return InvalidThreshold
+		return nil, InvalidThreshold
 	}
 
 	_, urlcount, err := urlHandler.dbClient.GetUrlsForOwner(owner)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if urlcount >= int64(urlHandler.maxUrlPerUser) {
-		return UrlCountPerUseExceeded
+		return nil, UrlCountPerUseExceeded
 	}
 
 	if !utils.Contains(intervalStr, urlHandler.allowedIntervals) {
-		return InvalidInterval
+		return nil, InvalidInterval
 	}
 	interval, _ := time.ParseDuration(intervalStr)
 
@@ -65,11 +65,11 @@ func (urlHandler UrlHandler) CreateUrl(owner int, address string, failureThresho
 		FailureThreshold: failureThreshold,
 		Interval:         interval,
 	}
-	err = urlHandler.dbClient.SaveUrl(url)
+	url, err = urlHandler.dbClient.SaveUrl(url)
 	if err != nil && strings.Contains(err.Error(), "duplicate key") {
-		return UrlAlreadyExists
+		return nil, UrlAlreadyExists
 	}
-	return err
+	return &url, nil
 }
 
 func (urlHandler UrlHandler) UrlStats(urlID int, durationStr string) (int, int, int, error) {
