@@ -160,3 +160,25 @@ func (httpMonitor httpMonitorHandler) ListUrls(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, data)
 }
+
+func (httpMonitor httpMonitorHandler) GetUrlAlerts(c echo.Context) error {
+	urlID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid Path Parameter")
+	}
+
+	state, latestAlerts, err := httpMonitor.urlHandler.GetAlerts(urlID)
+	if err != nil {
+		log.Error("Error in get alerts: ", err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
+
+	data := struct {
+		CurrentState string                   `json:"currentState"`
+		LatestAlerts []map[string]interface{} `json:"latestAlerts"`
+	}{
+		CurrentState: state,
+		LatestAlerts: latestAlerts,
+	}
+	return c.JSON(http.StatusOK, data)
+}

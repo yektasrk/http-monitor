@@ -38,6 +38,7 @@ func (httpMonitor httpMonitor) Serve(config configs.HttpServerConfiguration) err
 	urlgroup.GET("/", httpMonitor.httpMonitorHandler.ListUrls)
 	urlgroup.GET("/:id", httpMonitor.httpMonitorHandler.GetUrlStats)
 	urlgroup.POST("/", httpMonitor.httpMonitorHandler.CreateUrl)
+	urlgroup.GET("/:id/alerts", httpMonitor.httpMonitorHandler.GetUrlAlerts)
 
 	address := config.Host + ":" + strconv.Itoa(config.Port)
 	err := e.Start(address)

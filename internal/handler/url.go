@@ -19,9 +19,10 @@ var (
 )
 
 type UrlHandler struct {
-	allowedIntervals []string
-	maxUrlPerUser    int
-	dbClient         *db.Client
+	allowedIntervals   []string
+	maxUrlPerUser      int
+	alertsHistoryCount int
+	dbClient           *db.Client
 }
 
 func NewUrlHandler(config *configs.Configuration) (*UrlHandler, error) {
@@ -32,9 +33,10 @@ func NewUrlHandler(config *configs.Configuration) (*UrlHandler, error) {
 
 	log.Debug(config.UrlHandler.AllowedIntervals)
 	return &UrlHandler{
-		allowedIntervals: config.UrlHandler.AllowedIntervals,
-		maxUrlPerUser:    config.UrlHandler.MaxUrlPerUser,
-		dbClient:         dbClient,
+		allowedIntervals:   config.UrlHandler.AllowedIntervals,
+		maxUrlPerUser:      config.UrlHandler.MaxUrlPerUser,
+		alertsHistoryCount: config.UrlHandler.AlertsHistoryCount,
+		dbClient:           dbClient,
 	}, nil
 }
 
@@ -110,4 +112,27 @@ func (urlHandler UrlHandler) ListUserUrls(ownerID int) ([]map[string]interface{}
 		urlsMap = append(urlsMap, urlMap)
 	}
 	return urlsMap, int(urlcount), err
+}
+
+func (urlHandler UrlHandler) GetAlerts(urlID int) (string, []map[string]interface{}, error) {
+	alerts, err := urlHandler.dbClient.GetLatestAlertsForUrl(urlID, urlHandler.alertsHistoryCount)
+	if err != nil {
+		return "Unknown", nil, err
+	}
+
+	var alertsMap []map[string]interface{}
+	for _, alert := range alerts {
+		urlMap, err := utils.StructToMap(alert, []string{"ID", "TimeFired", "TimeResolved"})
+		if err != nil {
+			return "Unknown", nil, err
+		}
+		alertsMap = append(alertsMap, urlMap)
+	}
+
+	state := "OK!"
+	if len(alerts) > 0 && alerts[0].TimeResolved == nil {
+		log.Debug(alerts[0])
+		state = "*** FIRING ***"
+	}
+	return state, alertsMap, err
 }

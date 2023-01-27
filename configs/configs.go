@@ -37,8 +37,9 @@ type LoggerConfiguration struct {
 }
 
 type UrlHandlerConfiguration struct {
-	MaxUrlPerUser    int
-	AllowedIntervals []string
+	MaxUrlPerUser      int
+	AlertsHistoryCount int
+	AllowedIntervals   []string
 }
 
 func Load(filename string) (*Configuration, error) {
